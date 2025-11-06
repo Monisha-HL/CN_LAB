@@ -1,0 +1,32 @@
+import time
+import random
+
+class LeakyBucket:
+    def __init__(self, bucket_size, output_rate):
+        self.bucket_size = bucket_size
+        self.output_rate = output_rate
+        self.current_size = 0
+
+    def receive_packet(self, packet_size):
+        print(f"\nIncoming packet size: {packet_size}")
+        if self.current_size + packet_size > self.bucket_size:
+            print("Bucket overflow! Packet dropped.")
+        else:
+            self.current_size += packet_size
+            print(f"Packet accepted. Bucket size now: {self.current_size}")
+
+    def leak(self):
+        if self.current_size == 0:
+            print("Bucket empty. Nothing to leak.")
+        else:
+            leaked = min(self.output_rate, self.current_size)
+            self.current_size -= leaked
+            print(f"Leaked {leaked} units. Bucket size now: {self.current_size}")
+
+bucket = LeakyBucket(bucket_size=10, output_rate=3)
+packets = [random.randint(1, 5) for _ in range(2)]
+
+for packet in packets:
+    bucket.receive_packet(packet)
+    time.sleep(1)
+    bucket.leak()
