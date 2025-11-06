@@ -1,0 +1,28 @@
+def crc_ccitt(data: bytes, poly=0x1021, init_crc=0xFFFF):
+    crc = init_crc
+    for byte in data:
+        crc ^= byte << 8
+        for _ in range(8):
+            if crc & 0x8000:
+                crc = (crc << 1) ^ poly
+            else:
+                crc <<= 1
+            crc &= 0xFFFF  
+    return crc
+    
+def main():
+    message = input("Enter message to send: ")
+    data = message.encode()
+    crc = crc_ccitt(data)
+    print(f"Original message: {message}")
+    print(f"CRC-CCITT (16-bit): {hex(crc)}")
+
+    transmitted = data + crc.to_bytes(2, byteorder='big')
+    received_crc = crc_ccitt(transmitted)
+    if received_crc == 0:
+        print("No error detected.")
+    else:
+        print("Error detected in transmission!")
+
+if __name__ == "__main__":
+    main()
